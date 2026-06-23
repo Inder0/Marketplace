@@ -1,0 +1,86 @@
+# created by virtualenv automatically
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Media uploads
+media/
+
+# Static files collected by collectstatic
+staticfiles/
+
+# Environment variables
+.env
+.env.*
+
+# Coverage / Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.cache/
+nosetests.xml
+coverage.xml
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Pyre
+.pyre/
+
+# Celery
+celerybeat-schedule
+
+# Redis dump
+dump.rdb
+
+# Django migrations (optional)
+# Uncomment only if you don't want migrations in git
+# */migrations/*
+# !*/migrations/__init__.py
+
+# PyCharm
+*.iml
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

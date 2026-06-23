@@ -1,0 +1,63 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto px-4">
+    <h1 class="text-3xl font-bold mb-8">
+        Account Settings
+    </h1>
+    <div class="bg-gray-200 rounded-xl border ">
+        <div class="flex items-center justify-between p-5">
+            <div>
+                <h2 class="font-semibold text-gray-900">
+                    Email Address
+                </h2>
+                <p id="email-address" class="text-gray-600">
+                    {% if user.email %}
+                        {{ user.email }}
+                    {% else %}
+                        No email address
+                    {% endif %}
+                </p>
+            </div>
+
+            <a id="email-edit"
+                hx-get="{% url 'profile-emailchange' %}"
+                hx-target="#email-address"
+                hx-swap="innerHTML"
+                class="cursor-pointer text-blue-600 hover:underline font-medium">
+                Edit
+            </a>
+        </div>
+        <div class="flex items-center justify-between p-5">
+            <div>
+                <h2 class="font-semibold text-gray-900">
+                    Verification Status
+                </h2>
+                {% if email_address.verified %}
+                    <p class="text-green-600">
+                        ✓ Verified
+                    </p>
+                {% else %}
+                    <p class="text-amber-600">
+                        ⚠ Not Verified
+                    </p>
+                {% endif %}
+            </div>
+            {% if not email_address.verified %}
+                <a
+                    hx-post="{% url 'send-verification' %}"
+                    hx-confirm="Send verification email to {{ user.email }}?"
+                    hx-swap="none"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    class="text-blue-600 hover:underline">
+                    Verify
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

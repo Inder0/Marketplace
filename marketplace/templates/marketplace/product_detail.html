@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block content %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<div class="flex md:flex-row flex-col card gap-x-8" >
+    {% if product.extension in '.jpg,.jpeg,.png,.gif,.webp,.heif' %}
+        <img src="{{ product.file_url }}" class="w-80 rounded-xl">
+    {% else %}
+        <div class="card flex flex-col text-center">
+            📄 {{ product.file_name }}
+            <a href="{{ product.file.url }}" class="button ml-2 mt-4">
+                Download
+            </a>
+        </div>
+    {% endif %}
+    <div class="flex md:flex-1 flex-col max-w-auto mt-4 md:mt-2">
+        <div class="font-bold">{{product.name}}</div>
+        <div class="text-gray-300">{{product.description}}</div>
+        <div class="flex md:mt-auto mt-4 mb-4 font-medium items-center text-green-400">Rs. {{product.price}}
+            <button id="buy-btn" class="button !bg-green-700 !hover:bg-green-800 !font-normal text-center !px-4 !py-2 !text-md !ml-auto">Buy</button>
+            <a href="{% url 'update-product' product.id %}" class="button !bg-yellow-500 !hover:bg-yellow-500 !font-normal text-center !text-md">Edit</a>
+            
+            <button class="button-danger !px-4 !py-2 !text-md"
+                            hx-post="{% url 'delete-product' product.id %}"
+                            hx-confirm="Are you sure you want to delete this product?"
+                            hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
+                            >
+                Delete
+            </button>
+            
+        </div>
+        
+
+    </div>
+</div>
+<script>
+
+document
+.getElementById("buy-btn")
+.addEventListener(
+    "click",
+    async function() {
+
+        const response = await fetch(
+            "{% url 'create-order' product.id %}"
+        );
+
+        const data =
+            await response.json();
+
+        const options = {
+
+            key:
+                "{{ razorpay_key }}",
+
+            amount:
+                data.amount,
+
+            currency:
+                "INR",
+
+            name:
+                "Marketplace",
+
+            description:
+                "{{ product.name }}",
+
+            order_id:
+                data.order_id,
+
+            handler:
+                function(response){
+
+                fetch(
+                    "{% url 'verify-payment' %}",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+
+                            "X-CSRFToken":
+                                "{{ csrf_token }}"
+                        },
+
+                        body: JSON.stringify({
+
+                            product_id:
+                                "{{ product.id }}",
+
+                            razorpay_order_id:
+                                response.razorpay_order_id,
+
+                            razorpay_payment_id:
+                                response.razorpay_payment_id,
+
+                            razorpay_signature:
+                                response.razorpay_signature
+                        })
+                    }
+                )
+
+                .then(res => res.json())
+
+                .then(data => {
+
+                    if(data.success){
+
+                        window.location.href =
+                            "{% url 'payment-success' %}"
+
+                    } else {
+
+                        window.location.href =
+                            "{% url 'payment-failed' %}"
+
+                    }});}
+        };
+        const rzp =
+            new Razorpay(options);
+        rzp.open();
+    });
+</script>
+{% endblock %}

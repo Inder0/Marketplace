@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if update %}
+<h1 class="text-center font-bold text-xl  mb-3">Edit Product</h2>
+{% else %}
+<h1 class="text-center font-bold text-xl  mb-3">Create Product</h2>
+{% endif %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card grid grid-cols-[80px_1fr] items-center gap-4">
+        {% for field in form %}
+        <label>
+            {{ field.label }}:
+        </label>
+            {{field}}
+        {% endfor %}
+        <div class="col-span-2 flex items-center justify-center">
+        <button type="submit" class="button !bg-slate-500 mt-4">Submit</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

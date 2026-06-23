@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-lg mx-auto mt-10">
+    <div class="card  space-y-6 text-center">
+        <h1 class="heading-2 text-green-500">
+            Email Verified
+        </h1>
+        <p class="text-muted !mt-4 !mx-4">
+            Your email address has been successfully verified.
+        </p>
+        <div>
+        <a
+            href="{% url 'home' %}"
+            class="button !mx-6 ">
+            Continue
+        </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
