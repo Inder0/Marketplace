@@ -110,17 +110,14 @@
 
                 <div class="hidden md:flex items-center gap-1">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'home' %}" class="block navlink">
+                        <a href="{% url 'dashboard' %}" class="block navlink">
                             Dashboard
                         </a>
                         <a href="" class="block navlink">
                             Sales
                         </a>
-                        <a href="" class="block navlink">
+                        <a href="{% url 'my-purchase' %}" class="block navlink">
                             Orders
-                        </a>
-                        <a href="{% url 'create-product' %}" class="block navlink">
-                            Create Product
                         </a>
                         <a href="{% url 'profile' %}" class="block navlink">
                             Profile
@@ -155,18 +152,16 @@
             >
                 {% if user.is_authenticated %}
 
-                    <a href="{% url 'home' %}" class="block navlink">
+                    <a href="{% url 'dashboard' %}" class="block navlink">
                         Dashboard
                     </a>
                     <a href="" class="block navlink">
                         Sales
                     </a>
-                    <a href="" class="block navlink">
+                    <a href="{% url 'my-purchase' %}" class="block navlink">
                         Orders
                     </a>
-                    <a href="{% url 'create-product' %}" class="block navlink">
-                        Create Product
-                    </a>
+                    
 
                     <a href="{% url 'profile' %}" class="block navlink">
                         Profile

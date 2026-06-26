@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="flex mb-4">
+        <h1 class="font-bold text-2xl">My Products</h1>
+        <a href="{% url 'create-product' %}" class="button-secondary ml-auto">+ New Product</a>
+    </div>
+    <div class="product-container space-y-4">
+    {% for product in products %}
+        <div class="card">
+            <div class="hidden lg:grid lg:grid-cols-[100px_3fr_100px_100px_100px_150px] items-center gap-6">
+                <img class="w-24 h-24 object-cover mr-3 mb-3 rounded-xl" src="{{product.file_url}}">
+            
+            <div>
+            <div>{{product.name}}</div>
+            <div class="text-gray-300">{{product.description|truncatechars:200}}</div>
+            
+            <div class="mt-1.5 text-green-400">Rs. {{product.price}}</div>
+            </div>
+            <div>
+                <div class="font-bold">
+                    Rs. {{ product.total_sales }}
+                </div>
+                <div class="text-xs text-slate-400">
+                    Earnings
+                </div>
+            </div>
+            <div>
+                <div class="font-bold">
+                    {{ product.total_orders }}
+                </div>
+                <div class="text-xs text-slate-400">
+                    Orders
+                </div>
+            </div>
+            <div>
+                <div class="font-bold">
+                    4.8
+                </div>
+                <div class="text-xs text-slate-400">
+                    Rating
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <a class="button !font-normal !p-2 !text-xs !bg-yellow-500" href="{% url 'update-product' product.id %}">Update</a>
+                <a class="button !font-normal text-center !p-2 !text-xs !ml-2" href="{% url 'product-detail' product.id %}">Details</a>
+            </div>
+        </div>
+        <div class="lg:hidden">
+            <div class="flex gap-4">
+                <img src="{{ product.file_url }}" class="w-20 h-20 object-cover rounded-xl">
+                <div class="flex-1 min-w-0">
+                    <div class="font-bold">{{ product.name }}</div>
+                    <div class="text-slate-300 text-sm">{{ product.description|truncatechars:80 }}</div>
+                    <div class="mt-2 text-green-400 font-medium">Rs.{{ product.price }}</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 text-center mt-4 border-t border-slate-700 pt-4">
+                <div>
+                    <div class="font-bold">Rs. {{ product.total_sales }}</div>
+                    <div class="text-xs text-slate-400">Earnings</div>
+                </div>
+                <div>
+                    <div class="font-bold">{{product.total_orders}}</div>
+                    <div class="text-xs text-slate-400">Orders</div>
+                </div>
+                <div>
+                    <div class="font-bold">4.8</div>
+                    <div class="text-xs text-slate-400">Rating</div>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-4">
+                <a href="{% url 'update-product' product.id %}" class="button !bg-yellow-500 flex-1 text-center">Update</a>
+                <a href="{% url 'product-detail' product.id %}" class="button flex-1 text-center">Details</a>
+
+            </div>
+        </div>
+        
+        
+        </div>
+
+    {% endfor %}
+    </div>
+    {% if is_paginated %}
+    <div class="flex justify-center items-center gap-2 mt-6">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="button-secondary !px-2">First</a>
+        <a href="?page={{page_obj.previous_page_number}}" class="button-secondary !px-2">Prev</a>
+        {% endif %}
+        <span class="px-2">
+            Page {{page_obj.number}}  of {{page_obj.paginator.num_pages}}
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{page_obj.next_page_number}}" class="button-secondary !px-2">Next</a>
+        <a href="?page={{page_obj.paginator.num_pages}}" class="button-secondary !px-2">Last</a>
+        {% endif %}
+
+
+    </div>
+    {% endif %}
+{% endblock %}

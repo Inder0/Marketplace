@@ -144,7 +144,7 @@ ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-
+# ACCOUNT_LOGIN_URL='account_login'
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGIN_METHODS = {"username", "email"}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']

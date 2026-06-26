@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Product,Order
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView
 from django.conf import settings
@@ -11,6 +11,8 @@ import json
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from .forms import ProductForm
+from django.db.models import Count, Sum,Q,Value,DecimalField
+from django.db.models.functions import Coalesce
 from django.contrib.messages.views import SuccessMessageMixin
 # Create your views here.
 
@@ -32,6 +34,16 @@ class ProductDetail(DetailView):
     template_name='marketplace/product_detail.html'
     context_object_name='product'
     extra_context={'razorpay_key':settings.RAZORPAY_ID}
+
+    def get_context_data(self, **kwargs):
+        context= super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context['order']=Order.objects.filter(user=self.request.user,
+                                                       product=self.object,
+                                                       paid=True).order_by('-created_at').first()
+        else:
+            context['order']=None
+        return context
 
 @login_required
 def create_order(request,pk):
@@ -85,14 +97,18 @@ def payment_success(request):
 def payment_failed(request):
     return render(request,'marketplace/payment_failed.html')
 
-class ProductCreateView(SuccessMessageMixin,CreateView):
+class ProductCreateView(LoginRequiredMixin,SuccessMessageMixin,CreateView):
     model=Product
     form_class=ProductForm
     success_message='Product created successfully'
     template_name='marketplace/create_product.html'
     success_url=reverse_lazy('home')
+    
+    def form_valid(self, form):
+        form.instance.seller = self.request.user
+        return super().form_valid(form)
 
-class ProductUpdateView(SuccessMessageMixin,UpdateView):
+class ProductUpdateView(LoginRequiredMixin,SuccessMessageMixin,UpdateView):
     model=Product
     form_class=ProductForm
     template_name='marketplace/create_product.html'
@@ -104,11 +120,17 @@ class ProductUpdateView(SuccessMessageMixin,UpdateView):
         if not form.has_changed():
             return redirect('home')
         return super().form_valid(form)
+    
+    def get_queryset(self):
+        return Product.objects.filter(seller=self.request.user)
 
-class ProductDeleteView(SuccessMessageMixin,DeleteView):
+class ProductDeleteView(LoginRequiredMixin,SuccessMessageMixin,DeleteView):
     model=Product
     success_message='Product deleted successfully'
     success_url=reverse_lazy('home')
+
+    def get_queryset(self):
+        return Product.objects.filter(seller=self.request.user)
 
     def form_valid(self, form):
         self.object.delete()
@@ -117,3 +139,24 @@ class ProductDeleteView(SuccessMessageMixin,DeleteView):
         return response
 
 
+class DashboardView(LoginRequiredMixin,ListView):
+    model=Product
+    template_name='marketplace/dashboard.html'
+    context_object_name='products'
+    paginate_by=9
+
+    def get_queryset(self):
+        return Product.objects.filter(seller=self.request.user).annotate(
+            total_orders=Count("order",filter=Q(order__paid=True)),
+            total_sales=Coalesce(Sum("order__amount",filter=Q(order__paid=True)),Value(0),output_field=DecimalField(decimal_places=2))
+        )
+    
+class PurchaseView(LoginRequiredMixin,ListView):
+    model=Order
+    template_name='marketplace/purchases.html'
+    context_object_name='orders'
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).select_related("product", "product__seller")
+    
+    

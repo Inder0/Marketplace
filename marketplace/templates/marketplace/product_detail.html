@@ -3,7 +3,7 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <div class="flex md:flex-row flex-col card gap-x-8" >
     {% if product.extension in '.jpg,.jpeg,.png,.gif,.webp,.heif' %}
-        <img src="{{ product.file_url }}" class="w-80 rounded-xl">
+        <img src="{{ product.file_url }}" class="w-80 h-full rounded-xl">
     {% else %}
         <div class="card flex flex-col text-center">
             📄 {{ product.file_name }}
@@ -15,10 +15,26 @@
     <div class="flex md:flex-1 flex-col max-w-auto mt-4 md:mt-2">
         <div class="font-bold">{{product.name}}</div>
         <div class="text-gray-300">{{product.description}}</div>
-        <div class="flex md:mt-auto mt-4 mb-4 font-medium items-center text-green-400">Rs. {{product.price}}
-            <button id="buy-btn" class="button !bg-green-700 !hover:bg-green-800 !font-normal text-center !px-4 !py-2 !text-md !ml-auto">Buy</button>
-            <a href="{% url 'update-product' product.id %}" class="button !bg-yellow-500 !hover:bg-yellow-500 !font-normal text-center !text-md">Edit</a>
-            
+        
+        <div class="flex md:mt-auto mt-4 mb-4 font-medium items-center gap-x-2 text-green-400">Rs. {{product.price}}
+            {% if product.seller != request.user %}
+            {% if user.is_authenticated %}
+            <button id="buy-btn" class="button !bg-green-700  !hover:bg-green-800 !font-normal text-center !px-4 !py-2 !text-md !ml-auto">
+                {% if order %}
+                   Buy Again
+                {% else %}
+                    Buy
+                {% endif %}
+            </button>
+            {% else %}
+            <a href="{% url 'account_login' %}" class="button  !font-normal text-center !px-4 !py-2 !text-md !ml-auto">Login to Buy</a>
+            {% endif %}
+            {% endif %}
+
+       
+        {% if product.seller == request.user %}
+            <a href="{% url 'update-product' product.id %}" class="button !bg-yellow-500 !hover:bg-yellow-500 !font-normal text-center !ml-auto !text-md">Edit</a>
+
             <button class="button-danger !px-4 !py-2 !text-md"
                             hx-post="{% url 'delete-product' product.id %}"
                             hx-confirm="Are you sure you want to delete this product?"
@@ -26,17 +42,24 @@
                             >
                 Delete
             </button>
+        {% endif %}
             
+        </div>
+        <div>
+            {% if order %}
+            <div class="text-muted">
+                Purchased on - {{order.created_at|date:"d M Y"}}
+            </div>
+            {% endif %}
         </div>
         
 
     </div>
+    
 </div>
 <script>
 
-document
-.getElementById("buy-btn")
-.addEventListener(
+document.getElementById("buy-btn").addEventListener(
     "click",
     async function() {
 

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class=" product-container grid md:grid-cols-2 justify-items-center gap-6">
+    {% for order in orders %}
+        <div class="card md:w-full w-72 md:max-h-[50vh]  flex flex-col">
+            <div class="flex md:flex-row flex-col">
+                <img class="w-38 max-h-auto md:max-h-40 mr-3 mb-3 rounded-xl" src="{{order.product.file_url}}">
+                <div class="flex flex-col">
+                <div>{{order.product.name}}</div>
+                <div class="text-gray-300 line-clamp-4 mb-2">{{order.product.description|truncatechars:100}}</div>
+                </div>
+            </div>            <div class="flex mt-auto text-green-400 ">
+                <div>Rs. {{order.product.price}}</div>
+                <a class="button !font-normal text-center !p-2 !text-xs !ml-auto" href="{% url 'product-detail' order.product.id %}">View Details</a>
+            </div>
+            <div class="text-muted text-xs flex mt-2">
+                <p class="">Purchased on -</br> {{ order.created_at|date:"d M Y" }}</p>
+                <a class="text-xs pt-1 ml-auto" href="{% url 'profile-detail' order.product.seller.username %}">Seller - {{order.product.seller}}</a>
+            </div>
+        </div>
+
+    {% endfor %}
+    </div>
+{% endblock %}
