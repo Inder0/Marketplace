@@ -14,5 +14,5 @@ urlpatterns=[
     path('delete-product/<pk>', ProductDeleteView.as_view(), name='delete-product'),
     path('dashboard/',DashboardView.as_view(),name='dashboard'),
     path('purchases/',PurchaseView.as_view(),name='my-purchase'),
-
+    path('analytics/',AnalyticsView.as_view(),name='analytics')
 ]

@@ -1,23 +1,81 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class=" product-container grid md:grid-cols-3 justify-items-center lg:grid-cols-4 gap-6">
-    {% for product in products %}
-        <div class="card md:w-full w-72 flex flex-col">
-            <div class="flex">
-                <img class=" mr-3 mb-3 rounded-xl" src="{{product.file_url}}">
-            </div>
-            <div>{{product.name}}</div>
-            <div class="text-gray-300 line-clamp-4 mb-2">{{product.description|truncatechars:100}}</div>
-            <div class="flex mt-auto text-green-400 ">
-                <div>Rs. {{product.price}}</div>
-                <a class="button !font-normal text-center !p-2 !text-xs !ml-auto" href="{% url 'product-detail' product.id %}">View Details</a>
-            </div>
-            <div class="text-muted text-s flex mt-2">
-                4.8⭐
-                <a class="text-xs pt-1 ml-auto" href="{% url 'profile-detail' product.seller.username %}">Seller - {{product.seller}}</a>
-            </div>
+    <div class="text-center max-w-3xl mx-auto pt-4 pb-10">
+
+        <h1 class="text-4xl font-bold">
+            Discover Digital Products
+        </h1>
+
+        <p class="text-slate-400 mt-4">
+            Buy and sell high-quality digital products built by creators around the world.
+        </p>
+        <div class="max-w-xl mx-auto mt-8">
+            <input type="search" id="search" name="q" value="{{request.GET.q}}" class="form-input w-full" placeholder="🔍 Search products..."
+                    hx-get="{% url 'home' %}"
+                    hx-trigger="keyup changed delay:300ms"
+                    hx-target="#products"
+                    hx-swap="outerHTML"
+                    hx-push-url="true"
+                    hx-include="#sort"
+            >
         </div>
 
-    {% endfor %}
     </div>
+    <div class="flex items-center justify-between mt-10 mb-6">
+        <h2 class="text-2xl font-bold">
+            Latest Products
+        </h2>
+        <form>
+            <input
+                type="hidden"
+                id="hidden-search"
+                name="q"
+                value="{{ request.GET.q }}"
+            >
+            <select
+                id="sort"
+                name="sort"
+                class="form-input !py-2"
+            >
+                <option value=""
+                    {% if not request.GET.sort %}selected{% endif %}
+                >
+                    Newest
+                </option>
+
+                <option value="price_low"
+                    {% if request.GET.sort == 'price_low' %}selected{% endif %}
+                >
+                    Price: Low → High
+                </option>
+
+                <option value="price_high"
+                    {% if request.GET.sort == 'price_high' %}selected{% endif %}
+                >
+                    Price: High → Low
+                </option>
+
+            </select>
+        </form>
+    </div>
+    {% include "marketplace/partials/product_grid.html" %}
+
+<script>
+const search = document.getElementById("search");
+const sort = document.getElementById("sort");
+
+sort.addEventListener("change", function () {
+    const params = new URLSearchParams();
+
+    if (search.value) {
+        params.append("q", search.value);
+    }
+
+    if (this.value) {
+        params.append("sort", this.value);
+    }
+
+    window.location.href = "?" + params.toString();
+});
+</script>
 {% endblock %}

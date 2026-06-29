@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="font-bold underline"> Analytics</h1>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        <div class="card text-center">
+            <div class="text-3xl font-bold text-green-400">Rs. {{ lifetime_revenue }}</div>
+            <div class="text-muted mt-2">Lifetime Revenue</div>
+        </div>
+        <div class="card text-center">
+            <div class="text-3xl font-bold text-green-400">Rs. {{ last_30_days_revenue }}</div>
+            <div class="text-muted mt-2">Last 30 days</div>
+        </div>
+        <div class="card text-center">
+            <div class="text-3xl font-bold text-green-400">Rs. {{ last_7_days_revenue }}</div>
+            <div class="text-muted mt-2">Last 7 days</div>
+        </div>
+        <div class="card text-center">
+            <div class="text-3xl font-bold"> {{ total_orders }}</div>
+            <div class="text-muted mt-2">Total Orders</div>
+        </div>
+
+    </div>
+<div class="card mt-8">
+    <h2 class="font-bold text-lg mb-4">
+        Revenue (Last 7 Days)
+    </h2>
+    <div class="max-h-80">
+    <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+<div class="grid md:grid-cols-2 gap-6 mt-8">
+    <div class="card h-full">
+        <h2 class="font-bold text-lg mb-6">Recent Orders</h2>
+        {% if recent_orders %}
+        <div class="space-y-5">
+            {% for order in recent_orders %}
+            <div class="flex justify-between items-center border-b border-slate-700 pb-4 last:border-0 last:pb-0">
+                <div class="min-w-0">
+                    <div class="font-semibold truncate">
+                        {{ order.user.get_full_name|default:order.user.username }}
+                    </div>
+                    <a href="{% url 'product-detail' order.product.id %}"
+                        class="text-sm text-slate-300 hover:text-blue-400 truncate block">
+                        {{ order.product.name }}
+                    </a>
+                    <div class="text-xs text-slate-500">
+                        {{ order.created_at|date:"d M Y" }}
+                    </div>
+                </div>
+                <div class="text-green-400 font-bold whitespace-nowrap ml-4">
+                    ₹{{ order.amount }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12 text-slate-400">
+            No orders yet.
+        </div>
+        {% endif %}
+        </div>
+        <div class="card h-full">
+            <h2 class="font-bold text-lg mb-6">
+                Top Selling Products
+            </h2>
+            {% if top_products %}
+            <div class="space-y-5">
+                {% for product in top_products %}
+                <div class="flex justify-between items-center border-b border-slate-700 pb-4 last:border-0 last:pb-0">
+                    <div class="min-w-0">
+                        <a href="{% url 'product-detail' product.id %}"
+                            class="font-semibold hover:text-blue-400 truncate block">
+                            {{ product.name }}
+                        </a>
+                        <div class="text-xs text-slate-400 mt-1">
+                            {{ product.total_orders }} Orders
+                        </div>
+                    </div>
+                     <div class="text-right ml-4">
+                        <div class="font-bold text-green-400">
+                            ₹{{ product.total_sales|floatformat:0 }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12 text-slate-400">
+                No product sales yet.
+            </div>
+        {% endif %}    
+        </div>
+</div>
+
+
+
+
+
+
+<script>
+    const labels = {{ chart_labels|safe }};
+    const values = {{ chart_values|safe }};
+
+    const ctx =
+    document.getElementById("revenueChart");
+
+    new Chart(ctx,{
+        type:"line",
+
+        data:{
+            labels:labels,
+
+            datasets:[{
+                data: values,
+
+                borderColor:"#22c55e",
+
+                backgroundColor:"rgba(34,197,94,.15)",
+
+                fill:true,
+
+                tension:.35,
+
+                borderWidth:3,
+
+                pointRadius:4,
+
+                pointHoverRadius:6
+            }]
+        },
+        options:{
+            responsive:true,
+
+            plugins:{
+                legend:{
+                    display:false
+                }
+            },
+
+            scales:{
+                x:{
+                    ticks:{
+                        color:"#cbd5e1"
+                    },
+                    grid:{
+                        color:"#334155"
+                    }
+                },
+
+                y:{
+                    beginAtZero:true,
+
+                    ticks:{
+                        color:"#cbd5e1"
+                    },
+
+                    grid:{
+                        color:"#334155"
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

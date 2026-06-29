@@ -2,7 +2,8 @@
 {% block content %}
     <div class="flex mb-4">
         <h1 class="font-bold text-2xl">My Products</h1>
-        <a href="{% url 'create-product' %}" class="button-secondary ml-auto">+ New Product</a>
+        <a href="{% url 'analytics' %}" class="button !font-normal !p-3 ml-auto">Analytics</a>
+        <a href="{% url 'create-product' %}" class="button-secondary !text-sm !p-3 !font-normal ml-2">+ New Product</a>
     </div>
     <div class="product-container space-y-4">
     {% for product in products %}
