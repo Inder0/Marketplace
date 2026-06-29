@@ -14,7 +14,11 @@
                 <a class="button !font-normal text-center !p-2 !text-xs !ml-auto" href="{% url 'product-detail' product.id %}">View Details</a>
             </div>
             <div class="text-muted text-s flex mt-2">
-                4.8⭐
+                {% if product.review_count %}
+                <div class="text-yellow-300">{{ product.average_rating|floatformat:1 }} ⭐</div>
+                {% else %}
+                No reviews
+                {% endif %}
                 <a class="text-xs pt-1 ml-auto" href="{% url 'profile-detail' product.seller.username %}">Seller - {{product.seller}}</a>
             </div>
         </div>

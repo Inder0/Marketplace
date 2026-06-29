@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-10">
+
+    <h1 class="text-3xl font-bold mb-6">
+        Write a Review
+    </h1>
+
+    <div class="card shadow rounded-lg p-6">
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label for="{{ form.rating.id_for_label }}"
+                       class="block text-sm font-medium mb-2">
+                    Rating
+                </label>
+
+                {{ form.rating }}
+
+                {% if form.rating.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {{ form.rating.errors|join:", " }}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.review.id_for_label }}"
+                       class="block text-sm font-medium mb-2">
+                    Review
+                </label>
+
+                {{ form.review }}
+
+                {% if form.review.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {{ form.review.errors|join:", " }}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="flex gap-3">
+
+                <button
+                    type="submit"
+                    class="button"
+                >
+                    Submit Review
+                </button>
+
+                {% if object %}
+                    <a href="{% url 'product-detail' object.product.pk %}" class="button-secondary">
+                        Cancel
+                    </a>
+                {% else %}
+                    <a href="{% url 'product-detail' product.pk %}" class="button-secondary">
+                        Cancel
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}

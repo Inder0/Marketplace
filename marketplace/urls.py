@@ -14,5 +14,10 @@ urlpatterns=[
     path('delete-product/<pk>', ProductDeleteView.as_view(), name='delete-product'),
     path('dashboard/',DashboardView.as_view(),name='dashboard'),
     path('purchases/',PurchaseView.as_view(),name='my-purchase'),
-    path('analytics/',AnalyticsView.as_view(),name='analytics')
+    path('analytics/',AnalyticsView.as_view(),name='analytics'),
+    path('products/<pk>/review/',ReviewCreateView.as_view(),name='create-review'),
+    path('products/<pk>/review/edit/',ReviewUpdateView.as_view(),name='update-review'),
+    path('products/<pk>/review/delete/',ReviewDeleteView.as_view(),name='delete-review')
+
+
 ]

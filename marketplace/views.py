@@ -1,6 +1,6 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render,get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Product,Order
+from .models import Product,Order,Review
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView,TemplateView
 from django.conf import settings
 from django.utils import timezone
@@ -11,13 +11,14 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse,Http404
 from django.urls import reverse_lazy
-from .forms import ProductForm
-from django.db.models import Count, Sum,Q,Value,DecimalField
+from .forms import ProductForm,ReviewForm
+from django.db.models import Count, Sum,Q,Value,DecimalField,Avg
 from django.db.models.functions import Coalesce,TruncDate
 from django.contrib.messages.views import SuccessMessageMixin
 from django.template.response import TemplateResponse
+from django.contrib import messages
 # Create your views here.
 
 class HomeView(ListView):
@@ -28,7 +29,7 @@ class HomeView(ListView):
     paginate_by=5
 
     def get_queryset(self):
-        queryset=Product.objects.all()
+        queryset=Product.objects.annotate(average_rating=Avg("reviews__rating"),review_count=Count("reviews"))
         query=self.request.GET.get("q")
         if query:
             queryset=queryset.filter(
@@ -74,8 +75,22 @@ class ProductDetail(DetailView):
             context['order']=Order.objects.filter(user=self.request.user,
                                                        product=self.object,
                                                        paid=True).order_by('-created_at').first()
+            has_purchased=Order.objects.filter(user=self.request.user,product=self.object,paid=True).exists() or False
+            context["has_purchased"] = has_purchased
+            if has_purchased:
+                review=Review.objects.filter(user=self.request.user,product=self.object).first() or None
+                context["user_review"] = review
         else:
             context['order']=None
+
+        
+        if self.request.user.is_authenticated:
+            context["reviews"] = self.object.reviews.select_related("user").exclude(user=self.request.user)[:10]
+        else:
+            context["reviews"] = self.object.reviews.select_related("user")[:10]
+        context["review_count"] = self.object.reviews.count()
+        context["average_rating"] = self.object.reviews.aggregate(Avg("rating"))["rating__avg"]
+                                                                  
         return context
 
 @login_required
@@ -188,6 +203,7 @@ class PurchaseView(LoginRequiredMixin,ListView):
     model=Order
     template_name='marketplace/purchases.html'
     context_object_name='orders'
+    paginate_by=9
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).select_related("product", "product__seller").order_by("-created_at")
@@ -245,5 +261,76 @@ class AnalyticsView(LoginRequiredMixin,TemplateView):
         return Product.objects.filter(seller=self.request.user).annotate(total_orders=Count("order",filter=Q(order__paid=True)),
                                                                          total_sales=Coalesce(Sum("order__amount",filter=Q(order__paid=True)),Value(0),output_field=FloatField()
                                                                                               )).order_by("-total_sales","-total_orders")[:5]
+class ReviewCreateView(LoginRequiredMixin, CreateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = "marketplace/review_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.product = get_object_or_404(Product, pk=self.kwargs["pk"])
+
+        has_purchased = Order.objects.filter(
+            user=request.user,
+            product=self.product,
+            paid=True,
+        ).exists()
+
+        already_reviewed = Review.objects.filter(
+            user=request.user,
+            product=self.product,
+        ).exists()
+
+        if not has_purchased or already_reviewed:
+            messages.error(self.request,"Cannot review this product now")
+            return redirect("home")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.product = self.product
+
+        messages.success(self.request, "Review added successfully.")
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "product-detail",
+            kwargs={"pk": self.product.pk},
+        )   
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["product"] = self.product
+        return context
+
+class ReviewUpdateView(LoginRequiredMixin, UpdateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = "marketplace/review_form.html"
+
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, "Review updated successfully.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "product-detail",
+            kwargs={"pk": self.object.product.pk},
+        )                                                                  
     
-                                                                                
+class ReviewDeleteView(LoginRequiredMixin, DeleteView):
+    model = Review
+
+    def get_queryset(self):
+        return Review.objects.filter(user=self.request.user)
+
+    def form_valid(self, form):
+        self.object.delete()
+        messages.success(self.request, "Review deleted successfully.")
+        response=HttpResponse()
+        response["HX-Redirect"]=reverse_lazy("product-detail",kwargs={"pk":self.object.product.pk})
+        return response

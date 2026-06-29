@@ -13,7 +13,34 @@
         </div>
     {% endif %}
     <div class="flex md:flex-1 flex-col max-w-auto mt-4 md:mt-2">
-        <div class="font-bold">{{product.name}}</div>
+        <div class=" flex font-bold"><div class="my-auto">{{product.name}}</div>
+            <div class="ml-auto ">{% if user.is_authenticated and has_purchased %}
+                {% if user_review %}
+                    
+                {% else %}
+                    <a href="{% url 'create-review' product.pk %}"
+                    class="button">
+                        Write Review
+                    </a>
+                {% endif %}
+            {% endif %}
+            </div>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+
+            {% if review_count %}
+                <span class="text-yellow-500 font-semibold">
+                    ★ {{ average_rating|floatformat:1 }}
+                </span>
+
+                <span class="text-slate-400">
+                    ({{ review_count }} review{{ review_count|pluralize }})
+                </span>
+            {% else %}
+                <span>No reviews yet</span>
+            {% endif %}
+
+        </div>
         <div class="text-gray-300">{{product.description}}</div>
         
         <div class="flex md:mt-auto mt-4 mb-4 font-medium items-center gap-x-2 text-green-400">Rs. {{product.price}}
@@ -57,6 +84,89 @@
     </div>
     
 </div>
+
+
+    {% if user_review %}
+    <h2 class="text-2xl font-bold mt-10 mb-4">
+        Your Review
+    </h2>
+    <div class="border border-slate-200 rounded-2xl p-4 mb-4">
+            <div class="flex justify-between">
+
+                <strong>{{ user_review.user.username }}</strong>
+
+                <span class="text-yellow-500">
+                    {{ user_review.rating }}/5 ★
+                </span>
+
+            </div>
+
+            {% if user_review.review %}
+                <p class="mt-3 text-gray-300">
+                    {{ user_review.review }}
+                </p>
+            {% endif %}
+            <div class="flex justify-between  mt-2">
+            <p class="text-xs text-gray-400 mt-3">
+                {{ user_review.created_at|date:"M d, Y" }}
+            </p>
+            <div class="ml-auto space-x-3">
+            <a href="{% url 'update-review' user_review.pk %}"
+                class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
+                    Edit Review
+                </a>
+            <button
+                class="button-danger"
+                hx-post="{% url 'delete-review' user_review.pk %}"
+                hx-confirm="Are you sure you want to delete your review?"
+                hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
+            >
+                Delete
+            </button>
+            </div>
+            </div>
+            
+    </div>
+    {% endif %}
+    <h2 class="text-2xl font-bold mt-10 mb-4">
+        Customer Reviews
+    </h2>
+{% if reviews %}
+    {% for review in reviews %}
+
+        <div class="border border-slate-200 rounded-2xl p-4 mb-4">
+
+            <div class="flex justify-between">
+
+                <strong>{{ review.user.username }}</strong>
+
+                <span class="text-yellow-500">
+                    {{ review.rating }}/5 ★
+                </span>
+
+            </div>
+
+            {% if review.review %}
+                <p class="mt-3 text-gray-300">
+                    {{ review.review }}
+                </p>
+            {% endif %}
+            <div class="flex justify-between">
+            <p class="text-xs text-gray-400 mt-3">
+                {{ review.created_at|date:"M d, Y" }}
+            </p>
+            </div>
+        </div>
+
+    {% endfor %}
+
+{% else %}
+
+    <div class="rounded-lg p-6 text-center text-gray-500">
+        No reviews yet.
+    </div>
+
+{% endif %}
 <script>
 
 document.getElementById("buy-btn").addEventListener(

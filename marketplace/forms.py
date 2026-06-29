@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product
+from .models import Product,Review
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -19,5 +19,25 @@ class ProductForm(forms.ModelForm):
                                                                                     file:py-2
                                                                                     hover:file:bg-gray-300
                                                                                 '''}),
+        }
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ["rating", "review"]
+        widgets = {
+            "rating": forms.Select(
+                choices=[(i, i) for i in range(1, 6)],
+                attrs={"class":"form-input"}
+            ),
+            "review": forms.Textarea(
+                attrs={
+                    "rows": 4,
+                    "placeholder": "Share your thoughts about this product (optional)...",
+                    "class":"form-input"
+
+                }
+            ),
         }
         
