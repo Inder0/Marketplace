@@ -1,7 +1,9 @@
+from itertools import product
+
 from django.shortcuts import redirect, render,get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Product,Order,Review
-from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView,TemplateView
+from django.views.generic import FormView, ListView,DetailView,CreateView,UpdateView,DeleteView,TemplateView
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import FloatField
@@ -13,12 +15,13 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import HttpResponse,Http404
 from django.urls import reverse_lazy
-from .forms import ProductForm,ReviewForm
+from .forms import CheckoutForm, ProductForm,ReviewForm
 from django.db.models import Count, Sum,Q,Value,DecimalField,Avg
 from django.db.models.functions import Coalesce,TruncDate
 from django.contrib.messages.views import SuccessMessageMixin
 from django.template.response import TemplateResponse
 from django.contrib import messages
+from .formsets import ProductImageFormSet
 # Create your views here.
 
 class HomeView(ListView):
@@ -107,6 +110,54 @@ def create_order(request,pk):
         'amount':order['amount'],
     })
 
+class CheckoutView(LoginRequiredMixin, FormView):
+    form_class = CheckoutForm
+    template_name = "marketplace/checkout.html"
+
+    def get_initial(self):
+        profile = self.request.user.profile
+
+        return {
+            "shipping_name": profile.displayname if profile.displayname else self.request.user.username,
+            "shipping_phone": profile.phone_number,
+            "shipping_address_line_1": profile.address_line_1,
+            "shipping_address_line_2": profile.address_line_2,
+            "shipping_city": profile.city,
+            "shipping_state": profile.state,
+            "shipping_postal_code": profile.postal_code,
+            "shipping_country": profile.country,
+        }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = get_object_or_404(Product,pk=self.kwargs["pk"])
+        context["product"]=product
+        return context
+    
+    def form_valid(self, form):
+        self.request.session["checkout"] = form.cleaned_data
+        return redirect("checkout-payment",pk=self.kwargs["pk"])
+    
+    def dispatch(self, request, *args, **kwargs):
+        product = get_object_or_404(Product, pk=kwargs["pk"])
+
+        if product.product_type == "digital":
+            return redirect("checkout-payment", pk=product.pk)
+
+        self.product = product
+        return super().dispatch(request, *args, **kwargs)
+    
+class CheckoutPaymentView(LoginRequiredMixin, TemplateView):
+    template_name = "marketplace/checkout_payment.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["product"] = get_object_or_404(Product,pk=self.kwargs["pk"])
+        context["checkout"] = self.request.session.get("checkout")
+        context["razorpay_key"] = settings.RAZORPAY_ID
+
+        return context
+    
+
 @login_required
 @csrf_exempt
 def verify_payment(request):
@@ -120,15 +171,35 @@ def verify_payment(request):
 
         })
         product=Product.objects.get(pk=data['product_id'])
+        checkout = request.session.pop("checkout", None)
+        shipping_data = {}
+
+        if checkout:
+            shipping_data = {
+                "shipping_name": checkout["shipping_name"],
+                "shipping_phone": checkout["shipping_phone"],
+
+                "shipping_address_line_1": checkout["shipping_address_line_1"],
+                "shipping_address_line_2": checkout["shipping_address_line_2"],
+
+                "shipping_city": checkout["shipping_city"],
+                "shipping_state": checkout["shipping_state"],
+                "shipping_postal_code": checkout["shipping_postal_code"],
+                "shipping_country": checkout["shipping_country"],
+            }
         Order.objects.create(
             product=product,
             user=request.user,
             amount=product.price,
             razorpay_order_id=data['razorpay_order_id'],
             razorpay_payment_id=data['razorpay_payment_id'],
-            paid=True
+            paid=True,
+            **shipping_data
         )
-
+        if product.product_type == "digital":
+            messages.success(request, "Order placed successfully. You can download your digital product from your purchases.")
+        else:
+            messages.success(request, "Order placed successfully.The seller will contact you on the registered phone number for Delivery.")
         return JsonResponse({
             'success':True
         })
@@ -145,30 +216,78 @@ def payment_success(request):
 def payment_failed(request):
     return render(request,'marketplace/payment_failed.html')
 
-class ProductCreateView(LoginRequiredMixin,SuccessMessageMixin,CreateView):
+class ProductCreateView(LoginRequiredMixin,CreateView):
     model=Product
     form_class=ProductForm
-    success_message='Product created successfully'
     template_name='marketplace/create_product.html'
     success_url=reverse_lazy('home')
     
     def form_valid(self, form):
+        context=self.get_context_data()
+        image_formset=context['image_formset']
         form.instance.seller = self.request.user
-        return super().form_valid(form)
+        if image_formset.is_valid():
+            self.object=form.save()
+            image_formset.instance=self.object
+            image_formset.save()
+            messages.success(self.request, "Product created successfully.")
+            return redirect(self.get_success_url())
+            
 
-class ProductUpdateView(LoginRequiredMixin,SuccessMessageMixin,UpdateView):
+        return self.render_to_response(self.get_context_data(form=form))
+    
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['image_formset']=ProductImageFormSet(self.request.POST,self.request.FILES)
+        else:
+            context['image_formset']=ProductImageFormSet()
+        return context
+
+
+class ProductUpdateView(LoginRequiredMixin,UpdateView):
     model=Product
     form_class=ProductForm
     template_name='marketplace/create_product.html'
     success_url=reverse_lazy('home')
-    success_message='Product updated successfully'
     extra_context={'update':True}
 
     def form_valid(self, form):
-        if not form.has_changed():
+        context=self.get_context_data()
+        image_formset=context['image_formset']
+        if not form.has_changed() and not image_formset.has_changed():
             return redirect('home')
-        return super().form_valid(form)
-    
+        if image_formset.is_valid():
+            self.object=form.save()
+            image_formset.instance=self.object
+            image_formset.save()
+            messages.success(self.request, "Product updated successfully.")
+            return redirect(self.get_success_url())
+            
+        print(form.errors)
+        print(image_formset.errors)
+        print(image_formset.non_form_errors())
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def form_invalid(self, form):
+        context=self.get_context_data()
+        image_formset=context['image_formset']
+        print(form.errors)
+        print(image_formset.errors)
+        print(image_formset.non_form_errors())
+        return self.render_to_response(
+            self.get_context_data(form=form)
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context["image_formset"] = ProductImageFormSet(self.request.POST,self.request.FILES,instance=self.object)
+        else:
+            context["image_formset"] = ProductImageFormSet(instance=self.object)
+
+        return context
+        
     def get_queryset(self):
         return Product.objects.filter(seller=self.request.user)
 

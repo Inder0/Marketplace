@@ -12,23 +12,12 @@
     {% csrf_token %}
     <div class="space-y-4">
         <div class="grid grid-cols-[120px_1fr] items-center gap-4">
-                <label for="{{ form.displayname.id_for_label }}">
-                    Display Name:
-                </label>
-                {{ form.displayname }}
-            </div>
-            <div class="grid grid-cols-[120px_1fr] items-center gap-4">
-                <label for="{{ form.info.id_for_label }}" class="align-top">
-                    Info:
-                </label>
-                {{ form.info }}
-            </div>
-            <div class="grid grid-cols-[120px_1fr] items-center gap-4">
-                <label for="{{ form.image.id_for_label }}">
-                    Image:
-                </label>
-                {{ form.image }}
-            </div>
-    <button type="submit" class="button mt-4">Save Changes</button>
+                {% for field in form %}
+                    {{ field.label }}
+                    {{ field }}
+                {% endfor %}
+    <div class="col-span-2 justify-center">
+    <button type="submit" class=" button mt-4">Save Changes</button>
     </div>
+</div>
 </form>

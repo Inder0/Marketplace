@@ -17,7 +17,9 @@ urlpatterns=[
     path('analytics/',AnalyticsView.as_view(),name='analytics'),
     path('products/<pk>/review/',ReviewCreateView.as_view(),name='create-review'),
     path('products/<pk>/review/edit/',ReviewUpdateView.as_view(),name='update-review'),
-    path('products/<pk>/review/delete/',ReviewDeleteView.as_view(),name='delete-review')
+    path('products/<pk>/review/delete/',ReviewDeleteView.as_view(),name='delete-review'),
+    path('checkout/<pk>/', CheckoutView.as_view(), name='checkout'),
+    path('checkout/<pk>/payment/', CheckoutPaymentView.as_view(), name='checkout-payment'),
 
 
 ]

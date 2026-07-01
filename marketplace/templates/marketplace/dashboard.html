@@ -9,7 +9,8 @@
     {% for product in products %}
         <div class="card">
             <div class="hidden lg:grid lg:grid-cols-[100px_3fr_100px_100px_100px_150px] items-center gap-6">
-                <img class="w-24 h-24 object-cover mr-3 mb-3 rounded-xl" src="{{product.file_url}}">
+        
+                <img class="w-24 h-24 img-aspect object-cover mr-3 mb-3 rounded-xl" src="{{product.primary_image}}">
             
             <div>
             <div>{{product.name}}</div>
@@ -48,10 +49,10 @@
         </div>
         <div class="lg:hidden">
             <div class="flex gap-4">
-                <img src="{{ product.file_url }}" class="w-20 h-20 object-cover rounded-xl">
+                <img src="{{ product.primary_image }}" class="w-20 h-20 object-cover rounded-xl">
                 <div class="flex-1 min-w-0">
                     <div class="font-bold">{{ product.name }}</div>
-                    <div class="text-slate-300 text-sm">{{ product.description|truncatechars:80 }}</div>
+                    <div class="text-slate-300 text-sm break-all">{{ product.description|truncatechars:80 }}</div>
                     <div class="mt-2 text-green-400 font-medium">Rs.{{ product.price }}</div>
                 </div>
             </div>

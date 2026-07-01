@@ -4,8 +4,8 @@
     {% for product in products %}
 
         <div class="card md:w-full w-72 flex flex-col">
-            <div class="flex">
-                <img class=" mr-3 mb-3 rounded-xl" src="{{product.file_url}}">
+            <div class="flex img-aspect mb-2">
+                <img class=" mr-3 mb-3 rounded-xl" src="{{product.primary_image}}">
             </div>
             <div>{{product.name}}</div>
             <div class="text-gray-300 line-clamp-4 mb-2">{{product.description|truncatechars:100}}</div>

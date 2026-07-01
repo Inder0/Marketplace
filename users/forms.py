@@ -46,6 +46,8 @@ class ProfileForm(ModelForm):
     class Meta:
         model=Profile
         exclude=['user','onboarding_completed']
+        labels={
+            'displayname':'Display Name',}
         widgets={
             'displayname':forms.TextInput(attrs={'placeholder':'Display Name','class': 'form-input'}),
             'info':forms.Textarea(attrs={'class': 'form-input min-h-32','placeholder':'Add information about yourself','rows':4}),
@@ -60,6 +62,31 @@ class ProfileForm(ModelForm):
                                                                                     hover:file:bg-gray-300
                                                                                 '''}),
         }
+        widgets.update({
+            "address_line_1": forms.TextInput(attrs={
+                "class": "form-input",
+                "placeholder": "Address Line 1",
+            }),
+            "address_line_2": forms.TextInput(attrs={
+                "class": "form-input",
+                "placeholder": "Address Line 2 (Optional)",
+            }),
+            "city": forms.TextInput(attrs={
+                "class": "form-input",
+            }),
+            "state": forms.TextInput(attrs={
+                "class": "form-input",
+            }),
+            "postal_code": forms.TextInput(attrs={
+                "class": "form-input",
+            }),
+            "country": forms.TextInput(attrs={
+                "class": "form-input",
+            }),
+            "phone_number": forms.TextInput(attrs={
+                "class": "form-input",
+            }),
+        })
 
 class CustomLoginForm(LoginForm):
 
