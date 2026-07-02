@@ -5,6 +5,7 @@
         <a href="{% url 'analytics' %}" class="button !font-normal !p-3 ml-auto">Analytics</a>
         <a href="{% url 'create-product' %}" class="button-secondary !text-sm !p-3 !font-normal ml-2">+ New Product</a>
     </div>
+    {% if products %}
     <div class="product-container space-y-4">
     {% for product in products %}
         <div class="card">
@@ -82,6 +83,11 @@
 
     {% endfor %}
     </div>
+    {% else %}
+    <div class="text-center text-slate-400 mt-6">
+        No products found.
+    </div>
+    {% endif %}
     {% if is_paginated %}
     <div class="flex justify-center items-center gap-2 mt-6">
         {% if page_obj.has_previous %}

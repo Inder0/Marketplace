@@ -68,6 +68,11 @@
                     {% endif %}
 
                     {{ image_form.image }}
+                    {% if image_form.image.errors %}
+                        <div class="text-red-500 text-sm mt-2">
+                            {{ image_form.image.errors }}
+                        </div>
+                    {% endif %}
 
                     {% if image_form.instance.pk %}
                         <div class="mt-3">

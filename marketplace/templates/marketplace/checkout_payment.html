@@ -3,59 +3,44 @@
 {% block content %}
 
 <div class="card max-w-xl mx-auto">
-
     <h2 class="text-2xl font-bold mb-6">
         Confirm Payment
     </h2>
-
     <div class="mb-6">
-
         <h3 class="font-semibold mb-2">
             Product
         </h3>
-
         <p>{{ product.name }}</p>
 
         <p class="text-green-400">
             ₹{{ product.price }}
         </p>
-
     </div>
     {% if not product.product_type == "digital" %}
     <div class="mb-6">
-
         <h3 class="font-semibold mb-2">
             Shipping Address
         </h3>
-
         <p>{{ checkout.shipping_name }}</p>
-
         <p>{{ checkout.shipping_phone }}</p>
-
         <p>{{ checkout.shipping_address_line_1 }}</p>
-
         {% if checkout.shipping_address_line_2 %}
             <p>{{ checkout.shipping_address_line_2 }}</p>
         {% endif %}
-
         <p>
             {{ checkout.shipping_city }},
             {{ checkout.shipping_state }}
         </p>
-
         <p>
             {{ checkout.shipping_postal_code }}
         </p>
-
         <p>
             {{ checkout.shipping_country }}
         </p>
-
     </div>
-
     <a
         href="{% url 'checkout' product.pk %}"
-        class="button-secondary"
+        class="button-secondary !mr-3"
     >
         Edit Address
     </a>

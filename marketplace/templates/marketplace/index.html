@@ -1,13 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="text-center max-w-3xl mx-auto pt-4 pb-10">
-
         <h1 class="text-4xl font-bold">
-            Discover Digital Products
+            Discover New Products
         </h1>
-
         <p class="text-slate-400 mt-4">
-            Buy and sell high-quality digital products built by creators around the world.
+            Buy and sell high-quality products around the world.
         </p>
         <div class="max-w-xl mx-auto mt-8">
             <input type="search" id="search" name="q" value="{{request.GET.q}}" class="form-input w-full" placeholder="🔍 Search products..."
@@ -19,7 +17,6 @@
                     hx-include="#sort"
             >
         </div>
-
     </div>
     <div class="flex items-center justify-between mt-10 mb-6">
         <h2 class="text-2xl font-bold">

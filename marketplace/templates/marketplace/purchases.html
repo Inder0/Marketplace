@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% if orders %}
     <div class="product-container grid lg:grid-cols-2 justify-items-center gap-6">
     {% for order in orders %}
         <div class="card lg:w-full w-72 flex flex-col">
@@ -26,6 +27,11 @@
         </div>
     {% endfor %}
     </div>
+    {% else %}
+    <div class="text-center text-slate-400 mt-6">
+        No purchases yet. Explore the marketplace and make your first purchase!
+    </div>
+    {% endif %}
 
     {% if is_paginated %}
     <div class="flex justify-center items-center gap-2 mt-6">

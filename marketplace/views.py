@@ -1,4 +1,3 @@
-from itertools import product
 
 from django.shortcuts import redirect, render,get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,7 +12,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import json
-from django.http import HttpResponse,Http404
+from django.http import HttpResponse
 from django.urls import reverse_lazy
 from .forms import CheckoutForm, ProductForm,ReviewForm
 from django.db.models import Count, Sum,Q,Value,DecimalField,Avg
@@ -29,7 +28,7 @@ class HomeView(ListView):
     template_name='marketplace/index.html'
     context_object_name='products'
     
-    paginate_by=5
+    paginate_by=8
 
     def get_queryset(self):
         queryset=Product.objects.annotate(average_rating=Avg("reviews__rating"),review_count=Count("reviews"))
@@ -204,7 +203,6 @@ def verify_payment(request):
             'success':True
         })
     except Exception as e:
-        print(e)
         return JsonResponse({
             'success':False
         })
@@ -263,21 +261,8 @@ class ProductUpdateView(LoginRequiredMixin,UpdateView):
             image_formset.save()
             messages.success(self.request, "Product updated successfully.")
             return redirect(self.get_success_url())
-            
-        print(form.errors)
-        print(image_formset.errors)
-        print(image_formset.non_form_errors())
+    
         return self.render_to_response(self.get_context_data(form=form))
-
-    def form_invalid(self, form):
-        context=self.get_context_data()
-        image_formset=context['image_formset']
-        print(form.errors)
-        print(image_formset.errors)
-        print(image_formset.non_form_errors())
-        return self.render_to_response(
-            self.get_context_data(form=form)
-        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -313,7 +298,7 @@ class DashboardView(LoginRequiredMixin,ListView):
     paginate_by=9
 
     def get_queryset(self):
-        return Product.objects.filter(seller=self.request.user).annotate(
+        return Product.objects.filter(seller=self.request.user).order_by("-created_at").annotate(
             total_orders=Count("order",filter=Q(order__paid=True)),
             total_sales=Coalesce(Sum("order__amount",filter=Q(order__paid=True)),Value(0),output_field=DecimalField(decimal_places=2))
         )
@@ -341,6 +326,7 @@ class AnalyticsView(LoginRequiredMixin,TemplateView):
     
     def get_last_7days_revenue(self):
         return self.get_orders().filter(created_at__gte=timezone.now()-timedelta(days=7)).aggregate(total=Coalesce(Sum("amount"),0,output_field=FloatField()))["total"]
+    
     def get_context_data(self, **kwargs):
         context= super().get_context_data(**kwargs)
         chart=self.get_chart()

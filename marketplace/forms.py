@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product,Review
+from .models import Product, ProductImage,Review
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -11,16 +11,15 @@ class ProductForm(forms.ModelForm):
             'price':forms.NumberInput(attrs={'placeholder':'Price','class': 'form-input'}),
             'product_type':forms.Select(attrs={'class': 'form-input',"id": "id_product_type",}),
 
-            'file':forms.FileInput(attrs={'accept':'*','class':  '''
-                                                                                    block w-full text-sm text-slate-300
-                                                                                    file:mr-4
-                                                                                    file:rounded-xl
-                                                                                    file:border-0
-                                                                                    file:bg-gray-200
-                                                                                    file:px-4
-                                                                                    file:py-2
-                                                                                    hover:file:bg-gray-300
-                                                                                ''',"id": "id_file",}),
+            'file':forms.FileInput(attrs={'accept':'*','class':  '''block w-full text-sm text-slate-300
+                                                                    file:mr-4
+                                                                    file:rounded-xl
+                                                                    file:border-0
+                                                                    file:bg-gray-200
+                                                                    file:px-4
+                                                                    file:py-2
+                                                                    hover:file:bg-gray-300
+                                                                    ''',"id": "id_file",}),
         }
         labels={
             'file':'Digital File',
@@ -77,3 +76,17 @@ class CheckoutForm(forms.Form):
         for field in self.fields.values():
             field.widget.attrs["class"] = "form-input"
 
+class ProductImageForm(forms.ModelForm):
+    class Meta:
+        model = ProductImage
+        fields = ["image"]
+
+    def clean_image(self):
+        image = self.cleaned_data.get("image")
+
+        if image and image.size > 5 * 1024 * 1024:
+            raise forms.ValidationError(
+                "Image size must be less than 5 MB."
+            )
+
+        return image

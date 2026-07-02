@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Checkout</h1>
+<div class="card flex flex-col justify-between  gap-4 mb-4">
+    <h1 class="font-bold text-2xl">Checkout</h1>
+    
     <p>Product: {{ product.name }}</p>
-    <p>Price: ₹{{ product.price }}</p>
+    <p class="text-green-400">Price: ₹{{ product.price }}</p>
+</div>
     <div class="card mt-4">
         <form method="post" id="checkout-form">
             {% csrf_token %}
