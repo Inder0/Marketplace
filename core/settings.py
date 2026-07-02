@@ -147,7 +147,7 @@ RAZORPAY_SECRET=os.getenv('RAZORPAY_SECRET')
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'staticfiles'
+    BASE_DIR / 'static'
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
