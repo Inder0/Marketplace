@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.templatetags.static import static
 # Create your models here.
 
 class Product(models.Model):
@@ -25,7 +25,7 @@ class Product(models.Model):
         image = self.images.first()
         if image:
             return image.image.url
-        return "/static/images/No_Image_Available.jpg"    
+        return static("images/No_Image_Available.jpg")
 
     @property
     def extension(self):
