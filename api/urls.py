@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter, path
-from .views import CheckoutView, OrderViewSet, ProductViewSet, ProfileView, ReviewViewSet,PaymentVerificationView,AnalyticsView,PublicProfileView
+from .views import CheckoutView, OrderViewSet, ProductViewSet, ProfileView, ReviewViewSet,PaymentVerificationView,AnalyticsView,PublicProfileView,GoogleJWTView
 
 
 app_name = 'api'
@@ -15,4 +15,5 @@ urlpatterns += [
     path('dashboard/analytics/', AnalyticsView.as_view(), name='analytics'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/<str:username>/', PublicProfileView.as_view(), name='public-profile'),
+    path('google/token/',GoogleJWTView.as_view(), name='google-jwt'),
 ]

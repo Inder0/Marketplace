@@ -221,3 +221,14 @@ class PublicProfileView(RetrieveAPIView):
     def get_object(self):
         
         return get_object_or_404(self.queryset, user__username=self.kwargs["username"])
+    
+class GoogleJWTView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh = RefreshToken.for_user(request.user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
