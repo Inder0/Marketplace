@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.sites',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
     'django_cleanup.apps.CleanupConfig',
@@ -184,7 +183,7 @@ RAZORPAY_SECRET=os.getenv('RAZORPAY_SECRET')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
