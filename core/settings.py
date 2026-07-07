@@ -163,8 +163,8 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    }
 }
 
 # Internationalization
@@ -192,8 +192,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 if DEBUG:
     MEDIA_URL = 'media/'
     MEDIA_ROOT = BASE_DIR / 'media'
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
+
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
