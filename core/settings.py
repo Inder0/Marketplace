@@ -163,7 +163,7 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
@@ -189,13 +189,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-if not DEBUG:
+if DEBUG:
     MEDIA_URL = 'media/'
     MEDIA_ROOT = BASE_DIR / 'media'
 
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_ON_GET = True
