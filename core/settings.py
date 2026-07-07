@@ -14,7 +14,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 load_dotenv()
-
+from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -52,6 +52,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'marketplace',
     'users',
+    "rest_framework",
+    "drf_spectacular",
+    "api",
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -109,7 +113,31 @@ DATABASES = {
     )
 }
 
+REST_FRAMEWORK = {
 
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.AllowAny",
+    ),
+
+    "DEFAULT_SCHEMA_CLASS": (
+        "drf_spectacular.openapi.AutoSchema"
+    ),
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+}
+
+if DEBUG:
+    SIMPLE_JWT = {
+        "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    }
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -175,7 +203,8 @@ ACCOUNT_FORMS = {
 SITE_ID = 1
 DOMAIN_NAME=os.getenv("DOMAIN_NAME")
 
-
+RAZORPAY_ID=os.getenv('RAZORPAY_ID')
+RAZORPAY_SECRET=os.getenv('RAZORPAY_SECRET')
 EMAIL_BACKEND=os.getenv("EMAIL_BACKEND")
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT"))

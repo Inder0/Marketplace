@@ -37,7 +37,7 @@
             </div>
             <div>
                 <div class="font-bold">
-                    4.8
+                    {{ product.avg_rating|floatformat:1 }}
                 </div>
                 <div class="text-xs text-slate-400">
                     Rating
@@ -67,7 +67,7 @@
                     <div class="text-xs text-slate-400">Orders</div>
                 </div>
                 <div>
-                    <div class="font-bold">4.8</div>
+                    <div class="font-bold">{{ product.avg_rating|floatformat:1 }}</div>
                     <div class="text-xs text-slate-400">Rating</div>
                 </div>
             </div>

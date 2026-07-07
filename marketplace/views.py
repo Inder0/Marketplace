@@ -21,6 +21,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.template.response import TemplateResponse
 from django.contrib import messages
 from .formsets import ProductImageFormSet
+
 # Create your views here.
 
 class HomeView(ListView):
@@ -300,7 +301,8 @@ class DashboardView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         return Product.objects.filter(seller=self.request.user).order_by("-created_at").annotate(
             total_orders=Count("order",filter=Q(order__paid=True)),
-            total_sales=Coalesce(Sum("order__amount",filter=Q(order__paid=True)),Value(0),output_field=DecimalField(decimal_places=2))
+            total_sales=Coalesce(Sum("order__amount",filter=Q(order__paid=True)),Value(0),output_field=DecimalField(decimal_places=2)),
+            avg_rating=Coalesce(Avg("reviews__rating"),Value(0),output_field=FloatField())
         )
     
 class PurchaseView(LoginRequiredMixin,ListView):
