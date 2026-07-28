@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="main-container space-y-3">
 <div class="flex md:flex-row flex-col card gap-x-8" >
     <div class="flex flex-col">
         <img src="{{ product.primary_image }}" class="w-full md:w-80 object-cover h-full rounded-xl">
@@ -108,10 +109,11 @@
 
 
     {% if user_review %}
-    <h2 class="text-2xl font-bold mt-10 mb-4">
+    <div class="card ">
+    <h2 class="text-2xl font-bold mt-1 mb-4">
         Your Review
     </h2>
-    <div class="border border-slate-200 rounded-2xl p-4 mb-4">
+    <div class="card border border-slate-200 rounded-2xl p-4 mb-4">
             <div class="flex justify-between">
 
                 <strong>{{ user_review.user.username }}</strong>
@@ -148,14 +150,16 @@
             </div>
             
     </div>
+    </div>
     {% endif %}
-    <h2 class="text-2xl font-bold mt-10 mb-4">
+    <div class="card">
+    <h2 class="text-2xl font-bold mt-1 mb-4">
         Customer Reviews
     </h2>
 {% if reviews %}
     {% for review in reviews %}
 
-        <div class="border border-slate-200 rounded-2xl p-4 mb-4">
+        <div class="card border border-slate-200 rounded-2xl p-4 mb-4">
 
             <div class="flex justify-between">
 
@@ -186,7 +190,8 @@
     <div class="rounded-lg p-6 text-center text-gray-500">
         No reviews yet.
     </div>
+    </div>
 
 {% endif %}
-
+</div>
 {% endblock %}
