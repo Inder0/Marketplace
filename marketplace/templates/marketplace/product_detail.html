@@ -133,7 +133,14 @@
             <p class="text-xs text-gray-400 mt-3">
                 {{ user_review.created_at|date:"M d, Y" }}
             </p>
-            <div class="ml-auto space-x-3">
+            <div class="flex flex-col md:flex-row ml-auto gap-2">
+            <a href="/products/1/review/edit/" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
+                    Edit Review
+                </a>
+            <button class="button-danger" hx-post="/products/1/review/delete/" hx-confirm="Are you sure you want to delete your review?" hx-headers="{&quot;X-CSRFToken&quot;:&quot;nEH4GRPY8VQNPa8qF2X9eKTyNIPx0Phm64ykRfbkc4Kpe185PPXRECHmrKh74gw8&quot;}">
+                Delete
+            </button>
+            </div>
             <a href="{% url 'update-review' user_review.pk %}"
                 class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
                     Edit Review
