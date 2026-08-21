@@ -141,18 +141,7 @@
                 Delete
             </button>
             </div>
-            <a href="{% url 'update-review' user_review.pk %}"
-                class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
-                    Edit Review
-                </a>
-            <button
-                class="button-danger"
-                hx-post="{% url 'delete-review' user_review.pk %}"
-                hx-confirm="Are you sure you want to delete your review?"
-                hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'
-            >
-                Delete
-            </button>
+            
             </div>
             </div>
             
