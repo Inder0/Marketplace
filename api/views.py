@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework.generics import RetrieveAPIView, get_object_or_404
 from .serializers import *
+from .throttles import SensitiveRateThrottle, AuthRateThrottle
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet,ReadOnlyModelViewSet
 from .pagination import ProductPagination
@@ -17,9 +18,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.conf import settings
 import razorpay
+from rest_framework_simplejwt.views import TokenObtainPairView
 from datetime import timedelta
 
 # Create your views here.
+
+class MarketplaceTokenObtainPairView(TokenObtainPairView):
+    throttle_classes=[AuthRateThrottle]
+    throttle_scope="auth"
+
 
 class ProductViewSet(ModelViewSet):
     permission_classes = [IsSellerOrReadOnly]
@@ -78,6 +85,9 @@ class OrderViewSet(ReadOnlyModelViewSet):
 
 class CheckoutView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes=[SensitiveRateThrottle]
+    throttle_scope="sensitive"
+
 
     def post(self, request):
         serializer = CheckoutSerializer(data=request.data, context={'request': request})
@@ -100,6 +110,10 @@ class CheckoutView(APIView):
 
 class PaymentVerificationView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes=[SensitiveRateThrottle]
+    throttle_scope="sensitive"
+
+
 
     def post(self, request):
         serializer = PaymentVerificationSerializer(data=request.data)
